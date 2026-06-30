@@ -35,7 +35,7 @@ const authLimiter = rateLimit({
 
 // CORS
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001']
+  origin: '*'
 }));
 
 // Parse JSON — limit body size to 10kb to prevent attacks
