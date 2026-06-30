@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { formatCurrency, formatDate } from '../utils/formatCurrency';
-import { Eye, EyeOff, Lock, Delete, TrendingUp, TrendingDown, Wallet, Home, List, Plus, BarChart2, Settings } from 'lucide-react';
+import { Eye, EyeOff, Lock, Delete, TrendingUp, TrendingDown, Home, List, Plus, BarChart2, Settings } from 'lucide-react';
 import { apiRequest } from '../utils/api';
 
 function PinModal({ onSuccess, onClose }) {
