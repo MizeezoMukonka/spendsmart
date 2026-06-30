@@ -35,7 +35,7 @@ const authLimiter = rateLimit({
 
 // CORS
 app.use(cors({
-  origin: '*'
+  origin: ['https://spendsmart-zeta-taupe.vercel.app', 'http://localhost:3000', 'http://localhost:3001']
 }));
 
 // Parse JSON — limit body size to 10kb to prevent attacks
