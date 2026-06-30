@@ -1,10 +1,9 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { apiRequest } from '../utils/api';
 import { useAuth } from './AuthContext';
+import { ShoppingCart, Bus, Smartphone, Home, Heart, Music, DollarSign, Briefcase, Store, CreditCard, PiggyBank } from 'lucide-react';
 
 const DataContext = createContext();
-
-import { ShoppingCart, Bus, Smartphone, Home, Heart, Music, DollarSign, Briefcase, Store, CreditCard, PiggyBank } from 'lucide-react';
 
 const DEFAULT_CATEGORIES = [
   { id: 1,  name: 'Food & Groceries', icon: ShoppingCart, type: 'expense' },
@@ -19,13 +18,13 @@ const DEFAULT_CATEGORIES = [
   { id: 10, name: 'Mobile Money',     icon: CreditCard,   type: 'income'  },
   { id: 11, name: 'Other Income',     icon: PiggyBank,    type: 'income'  },
 ];
+
 export function DataProvider({ children }) {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [categories] = useState(DEFAULT_CATEGORIES);
   const [loading, setLoading] = useState(false);
 
-  // Load transactions from backend when user logs in
   useEffect(() => {
     if (user) fetchTransactions();
   }, [user]);
@@ -43,22 +42,23 @@ export function DataProvider({ children }) {
   };
 
   const addTransaction = async (tx) => {
-  try {
-    const newTx = await apiRequest('/transactions', 'POST', tx);
-    setTransactions(prev => [newTx, ...prev]);
-    await fetchTransactions(); // refresh from database
-  } catch (err) {
-    console.error('Failed to add transaction:', err.message);
-  }
+    try {
+      const newTx = await apiRequest('/transactions', 'POST', tx);
+      setTransactions(prev => [newTx, ...prev]);
+      await fetchTransactions();
+    } catch (err) {
+      console.error('Failed to add transaction:', err.message);
+    }
   };
+
   const deleteTransaction = async (id) => {
-  try {
-    await apiRequest(`/transactions/${id}`, 'DELETE');
-    await fetchTransactions(); // refresh from database
-  } catch (err) {
-    console.error('Failed to delete transaction:', err.message);
-  }
-};
+    try {
+      await apiRequest(`/transactions/${id}`, 'DELETE');
+      await fetchTransactions();
+    } catch (err) {
+      console.error('Failed to delete transaction:', err.message);
+    }
+  };
 
   const totalIncome   = transactions.filter(t => t.type === 'income') .reduce((s, t) => s + Number(t.amount), 0);
   const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
