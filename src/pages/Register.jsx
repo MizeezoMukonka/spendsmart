@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, User, Shield, TrendingUp, Phone } from 'lucide-react';
+import { Mail, Lock, User, Shield, TrendingUp, Phone } from 'lucide-react';
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [method, setMethod] = useState('email'); // 'email' or 'phone'
+  const [method, setMethod] = useState('email');
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', pin: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,21 +17,17 @@ export default function Register() {
 
     if (!form.name || !form.password || !form.pin) { setError('Please fill in all fields.'); return; }
     if (method === 'email' && !form.email) { setError('Please enter your email address.'); return; }
-    <div>
-  <label className="block text-xs font-medium mb-1" style={{ color: '#8A9BB5' }}>Phone number</label>
-  <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: '#1A2740' }}>
-    <Phone size={16} color="#C9A84C" />
-    <input
-      type="tel"
-      value={form.phone}
-      onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
-      placeholder="09XXXXXXXX"
-      maxLength={10}
-      className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
-    />
-  </div>
-  <p className="text-xs mt-1" style={{ color: '#4A5A70' }}>Works with MTN, Airtel & Zamtel numbers</p>
-</div>
+
+    if (method === 'phone') {
+      if (!form.phone) { setError('Please enter your phone number.'); return; }
+      const validPrefixes = ['095', '096', '097', '075', '076', '077'];
+      const prefix = form.phone.slice(0, 3);
+      if (form.phone.length !== 10 || !validPrefixes.includes(prefix)) {
+        setError('Please enter a valid MTN, Airtel or Zamtel number (e.g. 0977123456)');
+        return;
+      }
+    }
+
     if (form.pin.length !== 4) { setError('PIN must be exactly 4 digits.'); return; }
 
     setLoading(true);
@@ -66,7 +62,6 @@ export default function Register() {
         <div className="rounded-2xl p-6" style={{ background: '#111E33' }}>
           <h2 className="text-lg font-semibold text-white mb-4">Create account</h2>
 
-          {/* Method toggle */}
           <div className="flex p-1 rounded-xl mb-4" style={{ background: '#1A2740' }}>
             <button type="button" onClick={() => setMethod('email')}
               className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -121,29 +116,30 @@ export default function Register() {
                   <input
                     type="tel"
                     value={form.phone}
-                    onChange={e => setForm({ ...form, phone: e.target.value })}
-                    placeholder="09xxxxxxxx"
+                    onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                    placeholder="09XXXXXXXX"
+                    maxLength={10}
                     className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
                   />
                 </div>
+                <p className="text-xs mt-1" style={{ color: '#4A5A70' }}>Works with MTN, Airtel & Zamtel numbers</p>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: '#8A9BB5' }}>Phone number</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: '#8A9BB5' }}>Password</label>
               <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: '#1A2740' }}>
-                <Phone size={16} color="#C9A84C" />
+                <Lock size={16} color="#C9A84C" />
                 <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
-                  placeholder="09XXXXXXXX"
-                  maxLength={10}
+                  type="password"
+                  value={form.password}
+                  onChange={e => setForm({ ...form, password: e.target.value })}
+                  placeholder="••••••••"
                   className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
                 />
               </div>
-              <p className="text-xs mt-1" style={{ color: '#4A5A70' }}>Works with MTN, Airtel & Zamtel numbers</p>
             </div>
+
             <div>
               <label className="block text-xs font-medium mb-1" style={{ color: '#8A9BB5' }}>4-digit PIN (to reveal balances)</label>
               <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: '#1A2740' }}>
