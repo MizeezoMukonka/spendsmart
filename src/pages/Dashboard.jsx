@@ -11,23 +11,27 @@ function PinModal({ onSuccess, onClose }) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
 
-  const handleKey = async (val) => {
-    if (val === 'del') { setPin(p => p.slice(0, -1)); return; }
-    if (pin.length >= 4) return;
-    const next = pin + val;
-    setPin(next);
-    if (next.length === 4) {
-      try {
-        const result = await apiRequest('/auth/verify-pin', 'POST', { userId: user.id, pin: next });
-        if (result.success) { onSuccess(); }
-        else { setError(true); setTimeout(() => { setPin(''); setError(false); }, 600); }
-      } catch (err) {
-        setError(true);
-        setTimeout(() => { setPin(''); setError(false); }, 600);
-      }
-    }
-  };
+  const handleKey = (val) => {
+  if (val === 'del') { setPin(p => p.slice(0, -1)); return; }
+  if (pin.length >= 4) return;
+  const next = pin + val;
+  setPin(next);
+};
 
+const handleSubmitPin = async () => {
+  if (pin.length !== 4) return;
+  try {
+    const result = await apiRequest('/auth/verify-pin', 'POST', {
+      userId: user.id,
+      pin: pin,
+    });
+    if (result.success) { onSuccess(); }
+    else { setError(true); setTimeout(() => { setPin(''); setError(false); }, 600); }
+  } catch (err) {
+    setError(true);
+    setTimeout(() => { setPin(''); setError(false); }, 600);
+  }
+};
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 px-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
       <div className="rounded-3xl p-6 w-full max-w-xs text-center" style={{ background: '#111E33' }}>
@@ -44,17 +48,26 @@ function PinModal({ onSuccess, onClose }) {
             }} />
           ))}
         </div>
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          {['1','2','3','4','5','6','7','8','9','','0','del'].map((k, i) => (
-            k === '' ? <div key={i} /> :
-            <button key={i} onClick={() => handleKey(k)}
-              className="py-4 rounded-2xl text-lg font-medium transition-colors"
-              style={{ background: '#1A2740', color: k === 'del' ? '#8A9BB5' : '#ffffff' }}>
-              {k === 'del' ? <Delete size={18} style={{ margin: '0 auto' }} /> : k}
-            </button>
-          ))}
-        </div>
-        <button onClick={onClose} className="text-sm" style={{ color: '#8A9BB5' }}>Cancel</button>
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+            {['1','2','3','4','5','6','7','8','9','','0','del'].map((k, i) => (
+              k === '' ? <div key={i} /> :
+              <button key={i} onClick={() => handleKey(k)}
+                className="py-4 rounded-2xl text-lg font-medium transition-colors"
+                style={{ background: '#1A2740', color: k === 'del' ? '#8A9BB5' : '#ffffff' }}>
+                {k === 'del' ? <Delete size={18} style={{ margin: '0 auto' }} /> : k}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={handleSubmitPin}
+            disabled={pin.length !== 4}
+            className="w-full py-3 rounded-2xl text-sm font-semibold mb-3 transition-opacity disabled:opacity-40"
+            style={{ background: '#C9A84C', color: '#0A1628' }}>
+            Enter
+          </button>
+
+          <button onClick={onClose} className="text-sm" style={{ color: '#8A9BB5' }}>Cancel</button>
       </div>
     </div>
   );
