@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { formatCurrency, formatDate } from '../utils/formatCurrency';
 import { Eye, EyeOff, Lock, Delete, TrendingUp, TrendingDown, Home, List, Plus, BarChart2, Settings } from 'lucide-react';
 import { apiRequest } from '../utils/api';
+import { scheduleReminder } from '../utils/notifications';
 
 function PinModal({ onSuccess, onClose }) {
   const { user } = useAuth();
@@ -12,26 +13,27 @@ function PinModal({ onSuccess, onClose }) {
   const [error, setError] = useState(false);
 
   const handleKey = (val) => {
-  if (val === 'del') { setPin(p => p.slice(0, -1)); return; }
-  if (pin.length >= 4) return;
-  const next = pin + val;
-  setPin(next);
-};
+    if (val === 'del') { setPin(p => p.slice(0, -1)); return; }
+    if (pin.length >= 4) return;
+    const next = pin + val;
+    setPin(next);
+  };
 
-const handleSubmitPin = async () => {
-  if (pin.length !== 4) return;
-  try {
-    const result = await apiRequest('/auth/verify-pin', 'POST', {
-      userId: user.id,
-      pin: pin,
-    });
-    if (result.success) { onSuccess(); }
-    else { setError(true); setTimeout(() => { setPin(''); setError(false); }, 600); }
-  } catch (err) {
-    setError(true);
-    setTimeout(() => { setPin(''); setError(false); }, 600);
-  }
-};
+  const handleSubmitPin = async () => {
+    if (pin.length !== 4) return;
+    try {
+      const result = await apiRequest('/auth/verify-pin', 'POST', {
+        userId: user.id,
+        pin: pin,
+      });
+      if (result.success) { onSuccess(); }
+      else { setError(true); setTimeout(() => { setPin(''); setError(false); }, 600); }
+    } catch (err) {
+      setError(true);
+      setTimeout(() => { setPin(''); setError(false); }, 600);
+    }
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 px-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
       <div className="rounded-3xl p-6 w-full max-w-xs text-center" style={{ background: '#111E33' }}>
@@ -48,26 +50,24 @@ const handleSubmitPin = async () => {
             }} />
           ))}
         </div>
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-            {['1','2','3','4','5','6','7','8','9','','0','del'].map((k, i) => (
-              k === '' ? <div key={i} /> :
-              <button key={i} onClick={() => handleKey(k)}
-                className="py-4 rounded-2xl text-lg font-medium transition-colors"
-                style={{ background: '#1A2740', color: k === 'del' ? '#8A9BB5' : '#ffffff' }}>
-                {k === 'del' ? <Delete size={18} style={{ margin: '0 auto' }} /> : k}
-              </button>
-            ))}
-          </div>
-
-          <button
-            onClick={handleSubmitPin}
-            disabled={pin.length !== 4}
-            className="w-full py-3 rounded-2xl text-sm font-semibold mb-3 transition-opacity disabled:opacity-40"
-            style={{ background: '#C9A84C', color: '#0A1628' }}>
-            Enter
-          </button>
-
-          <button onClick={onClose} className="text-sm" style={{ color: '#8A9BB5' }}>Cancel</button>
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {['1','2','3','4','5','6','7','8','9','','0','del'].map((k, i) => (
+            k === '' ? <div key={i} /> :
+            <button key={i} onClick={() => handleKey(k)}
+              className="py-4 rounded-2xl text-lg font-medium transition-colors"
+              style={{ background: '#1A2740', color: k === 'del' ? '#8A9BB5' : '#ffffff' }}>
+              {k === 'del' ? <Delete size={18} style={{ margin: '0 auto' }} /> : k}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={handleSubmitPin}
+          disabled={pin.length !== 4}
+          className="w-full py-3 rounded-2xl text-sm font-semibold mb-3 transition-opacity disabled:opacity-40"
+          style={{ background: '#C9A84C', color: '#0A1628' }}>
+          Enter
+        </button>
+        <button onClick={onClose} className="text-sm" style={{ color: '#8A9BB5' }}>Cancel</button>
       </div>
     </div>
   );
@@ -114,6 +114,12 @@ export default function Dashboard() {
   const { transactions, totalIncome, totalExpenses, balance } = useData();
   const [showPin, setShowPin] = useState(false);
 
+  useEffect(() => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      scheduleReminder();
+    }
+  }, []);
+
   const recent = transactions.slice(0, 5);
   const val = (amount) => balanceVisible ? formatCurrency(amount) : '••••••';
 
@@ -133,7 +139,6 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Header */}
       <div className="px-4 pt-12 pb-6" style={{ background: '#0A1628' }}>
         <div className="flex justify-between items-start mb-8">
           <div>
@@ -148,7 +153,6 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* Balance Card */}
         <div className="rounded-2xl p-5 mb-4" style={{ background: '#111E33', border: '1px solid #1A2740' }}>
           <p className="text-xs mb-1" style={{ color: '#8A9BB5' }}>Total Balance</p>
           <p className="text-3xl font-bold text-white mb-4">{val(balance)}</p>
@@ -171,7 +175,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Transactions */}
       <div className="px-4">
         <div className="flex justify-between items-center mb-3">
           <h2 className="font-semibold text-white">Recent transactions</h2>

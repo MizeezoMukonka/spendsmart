@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { apiRequest } from '../utils/api';
-import { User, Mail, Phone, Shield, Globe, LogOut, Home, List, Plus, BarChart2, Settings as SettingsIcon, ChevronRight } from 'lucide-react';
+import { requestNotificationPermission, scheduleReminder } from '../utils/notifications';
+import { User, Mail, Phone, Shield, Globe, LogOut, Home, List, Plus, BarChart2, Settings as SettingsIcon, ChevronRight, Bell } from 'lucide-react';
 
 function BottomNav({ active }) {
   const navigate = useNavigate();
@@ -46,8 +47,27 @@ export default function Settings() {
   const [pinError, setPinError] = useState('');
   const [pinSuccess, setPinSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    typeof Notification !== 'undefined' && Notification.permission === 'granted'
+  );
 
   const handleLogout = () => { logout(); navigate('/'); };
+
+  const handleToggleNotifications = async () => {
+    if (notificationsEnabled) {
+      setNotificationsEnabled(false);
+      return;
+    }
+    const granted = await requestNotificationPermission();
+    if (granted) {
+      setNotificationsEnabled(true);
+      scheduleReminder();
+      new Notification('SpendSmart reminders enabled', {
+        body: 'We will remind you at 8PM every day to log your expenses.',
+        icon: '/icon-192.png',
+      });
+    }
+  };
 
   const handleChangePin = async (e) => {
     e.preventDefault();
@@ -110,6 +130,27 @@ export default function Settings() {
               <p className="text-xs" style={{ color: '#8A9BB5' }}>Currency</p>
               <p className="text-sm font-medium text-white">Zambian Kwacha (ZMW)</p>
             </div>
+          </div>
+
+          {/* Notifications toggle */}
+          <div className="flex items-center gap-3 mt-3 pt-3" style={{ borderTop: '1px solid #1A2740' }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: '#1A2740' }}>
+              <Bell size={16} color="#C9A84C" />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs" style={{ color: '#8A9BB5' }}>Daily reminder</p>
+              <p className="text-sm font-medium text-white">Remind me to log expenses</p>
+            </div>
+            <button
+              onClick={handleToggleNotifications}
+              className="w-12 h-6 rounded-full transition-colors relative"
+              style={{ background: notificationsEnabled ? '#C9A84C' : '#1A2740' }}>
+              <div className="w-5 h-5 rounded-full absolute top-0.5 transition-all"
+                style={{
+                  background: '#fff',
+                  left: notificationsEnabled ? '26px' : '2px'
+                }} />
+            </button>
           </div>
         </div>
 
