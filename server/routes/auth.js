@@ -8,7 +8,9 @@ require('dotenv').config();
 
 // Register
 router.post('/register', [
-  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('name').trim().notEmpty().withMessage('Name is required')
+  .isLength({ min: 3 }).withMessage('Name must be at least 3 characters')
+  .matches(/^[a-zA-Z\s]+$/).withMessage('Name should only contain letters'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('pin').isLength({ min: 4, max: 4 }).isNumeric().withMessage('PIN must be exactly 4 digits'),
 ], async (req, res) => {

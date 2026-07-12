@@ -16,6 +16,10 @@ export default function Register() {
     setError('');
 
     if (!form.name || !form.password || !form.pin) { setError('Please fill in all fields.'); return; }
+
+if (form.name.trim().length < 3) { setError('Please enter your real full name.'); return; }
+if (!/^[a-zA-Z\s]+$/.test(form.name.trim())) { setError('Name should only contain letters.'); return; }
+if (form.name.trim().split(' ').length < 2) { setError('Please enter both your first and last name.'); return; }
     if (method === 'email' && !form.email) { setError('Please enter your email address.'); return; }
 
     if (method === 'phone') {
