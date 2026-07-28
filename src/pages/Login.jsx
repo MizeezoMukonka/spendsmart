@@ -1,14 +1,15 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Lock, TrendingUp, User } from 'lucide-react';
+    import { useState } from 'react';
+    import { useNavigate, Link } from 'react-router-dom';
+    import { useAuth } from '../context/AuthContext';
+    import { Lock, TrendingUp, User, Eye, EyeOff } from 'lucide-react';
 
-export default function Login() {
+    export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
     const [form, setForm] = useState({ identifier: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -44,7 +45,7 @@ export default function Login() {
                 <div className="text-sm rounded-xl px-4 py-3 mb-4" style={{ background: '#2A1A1A', color: '#E57373' }}>{error}</div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
                 <div>
                 <label className="block text-xs font-medium mb-1" style={{ color: '#8A9BB5' }}>Email or Phone number</label>
                 <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: '#1A2740' }}>
@@ -53,7 +54,8 @@ export default function Login() {
                     type="text"
                     value={form.identifier}
                     onChange={e => setForm({ ...form, identifier: e.target.value })}
-                    placeholder="you@example.com or 09xxxxxxxx"
+                    placeholder="you@example.com or 0977123456"
+                    autoComplete="off"
                     className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
                     />
                 </div>
@@ -63,12 +65,18 @@ export default function Login() {
                 <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: '#1A2740' }}>
                     <Lock size={16} color="#C9A84C" />
                     <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={form.password}
                     onChange={e => setForm({ ...form, password: e.target.value })}
-                    placeholder="xxxxxxxx"
+                    placeholder="••••••••"
+                    autoComplete="off"
                     className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
                     />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword
+                        ? <EyeOff size={16} color="#8A9BB5" />
+                        : <Eye size={16} color="#8A9BB5" />}
+                    </button>
                 </div>
                 </div>
                 <button

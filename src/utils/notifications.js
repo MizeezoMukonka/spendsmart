@@ -1,39 +1,47 @@
-            export const requestNotificationPermission = async () => {
-            if (!('Notification' in window)) return false;
-            if (Notification.permission === 'granted') return true;
-            if (Notification.permission !== 'denied') {
-                const permission = await Notification.requestPermission();
-                return permission === 'granted';
-            }
-            return false;
-            };
+    export const requestNotificationPermission = async () => {
+    if (!('Notification' in window)) return false;
+    if (Notification.permission === 'granted') return true;
+    if (Notification.permission !== 'denied') {
+        const permission = await Notification.requestPermission();
+        return permission === 'granted';
+    }
+    return false;
+    };
 
-            export const scheduleReminder = () => {
-            if (Notification.permission !== 'granted') return;
+    let reminderInterval = null;
 
-            const now = new Date();
-            const evening = new Date();
-            evening.setHours(20, 0, 0, 0);
+    export const scheduleReminder = () => {
+    if (Notification.permission !== 'granted') return;
+    if (reminderInterval) return;
 
-            let delay = evening.getTime() - now.getTime();
-            if (delay < 0) {
-                evening.setDate(evening.getDate() + 1);
-                delay = evening.getTime() - now.getTime();
-            }
+    reminderInterval = setInterval(() => {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const lastReminder = localStorage.getItem('ss_last_reminder');
+        const today = now.toDateString();
 
-            setTimeout(() => {
-                new Notification('SpendSmart - Daily Reminder', {
-                body: "Don't forget to log today's expenses and income.",
-                icon: '/icon-192.png',
-                });
-                scheduleReminder();
-            }, delay);
-            };
+        if (hours === 18 && minutes === 0 && lastReminder !== today) {
+        localStorage.setItem('ss_last_reminder', today);
+        new Notification('SpendSmart - Daily Reminder', {
+            body: "Don't forget to log today's expenses and income.",
+            icon: '/icon-192.png',
+        });
+        }
+    }, 60000);
+    }; 
 
-            export const sendWelcomeNotification = () => {
-            if (Notification.permission !== 'granted') return;
-            new Notification('Welcome to SpendSmart', {
-                body: 'Start tracking your money today. Tap + to add your first transaction.',
-                icon: '/icon-192.png',
-            });
-            };
+    export const stopReminder = () => {
+    if (reminderInterval) {
+        clearInterval(reminderInterval);
+        reminderInterval = null;
+    }
+    };
+
+    export const sendWelcomeNotification = () => {
+    if (Notification.permission !== 'granted') return;
+    new Notification('Welcome to SpendSmart', {
+        body: 'Start tracking your money today. Tap + to add your first transaction.',
+        icon: '/icon-192.png',
+    });
+    };  
