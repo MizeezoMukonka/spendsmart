@@ -87,7 +87,7 @@
 
             <div className="grid md:grid-cols-3 gap-4">
             {[
-                { icon: Wallet, title: 'Track everything', desc: 'Log your income and expenses in seconds, organised by category.' },
+                { icon: Wallet, title: 'Track everything', desc: 'Log your income and expenses in seconds, organized by category.' },
                 { icon: Lock, title: 'PIN protected', desc: 'Your balances stay hidden until you enter your personal PIN.' },
                 { icon: BarChart2, title: 'Clear reports', desc: 'See exactly where your money goes with simple charts and breakdowns.' },
                 { icon: Smartphone, title: 'Phone or email', desc: 'Sign up with your phone number or email — whatever works for you.' },
@@ -114,7 +114,7 @@
             <div className="space-y-4">
             {[
                 { step: '1', title: 'Create your account', desc: 'Sign up with your email or phone number — takes less than a minute.' },
-                { step: '2', title: 'Add your transactions', desc: 'Log your income and expenses as they happen, organised by category.' },
+                { step: '2', title: 'Add your transactions', desc: 'Log your income and expenses as they happen, organized by category.' },
                 { step: '3', title: 'See your reports', desc: 'Check your dashboard and reports any time to see where your money goes.' },
             ].map((s, i) => (
                 <div key={i} className="flex items-start gap-4 rounded-2xl p-4" style={{ background: '#111E33', border: '1px solid #1A2740' }}>
