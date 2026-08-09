@@ -4,6 +4,7 @@
 
     export function ThemeProvider({ children }) {
     const [isDark, setIsDark] = useState(() => {
+        if (typeof window === 'undefined') return true; // default dark for SSR
         const saved = localStorage.getItem('ss_theme');
         return saved ? saved === 'dark' : true; // default dark
     });
