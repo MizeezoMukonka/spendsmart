@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
+import { useTheme } from '../context/ThemeContext';
 import { formatCurrency, formatDate } from '../utils/formatCurrency';
 import { Eye, EyeOff, Lock, Delete, TrendingUp, TrendingDown, Home, List, Plus, BarChart2, Settings } from 'lucide-react';
 import { apiRequest } from '../utils/api';
 import { scheduleReminder } from '../utils/notifications';
 
-function PinModal({ onSuccess, onClose }) {
+function PinModal({ onSuccess, onClose, theme }) {
   const { user } = useAuth();
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
@@ -15,20 +16,16 @@ function PinModal({ onSuccess, onClose }) {
   const handleKey = (val) => {
     if (val === 'del') { setPin(p => p.slice(0, -1)); return; }
     if (pin.length >= 4) return;
-    const next = pin + val;
-    setPin(next);
+    setPin(prev => prev + val);
   };
 
   const handleSubmitPin = async () => {
     if (pin.length !== 4) return;
     try {
-      const result = await apiRequest('/auth/verify-pin', 'POST', {
-        userId: user.id,
-        pin: pin,
-      });
+      const result = await apiRequest('/auth/verify-pin', 'POST', { userId: user.id, pin });
       if (result.success) { onSuccess(); }
       else { setError(true); setTimeout(() => { setPin(''); setError(false); }, 600); }
-    } catch (err) {
+    } catch {
       setError(true);
       setTimeout(() => { setPin(''); setError(false); }, 600);
     }
@@ -36,17 +33,17 @@ function PinModal({ onSuccess, onClose }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 px-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
-      <div className="rounded-3xl p-6 w-full max-w-xs text-center" style={{ background: '#111E33' }}>
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style={{ background: '#1A2740' }}>
-          <Lock size={24} color="#C9A84C" />
+      <div className="rounded-3xl p-6 w-full max-w-xs text-center" style={{ background: theme.card }}>
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style={{ background: theme.input }}>
+          <Lock size={24} color={theme.gold} />
         </div>
-        <h3 className="font-semibold text-white mb-1">Enter your PIN</h3>
-        <p className="text-sm mb-6" style={{ color: '#8A9BB5' }}>To reveal your balances</p>
+        <h3 className="font-semibold mb-1" style={{ color: theme.text }}>Enter your PIN</h3>
+        <p className="text-sm mb-6" style={{ color: theme.subtext }}>To reveal your balances</p>
         <div className="flex justify-center gap-3 mb-6">
           {[0,1,2,3].map(i => (
             <div key={i} className="w-3 h-3 rounded-full transition-colors" style={{
-              background: pin.length > i ? (error ? '#E57373' : '#C9A84C') : '#1A2740',
-              border: `2px solid ${pin.length > i ? (error ? '#E57373' : '#C9A84C') : '#2A3D5A'}`
+              background: pin.length > i ? (error ? '#E57373' : theme.gold) : theme.input,
+              border: `2px solid ${pin.length > i ? (error ? '#E57373' : theme.gold) : theme.border}`
             }} />
           ))}
         </div>
@@ -55,7 +52,7 @@ function PinModal({ onSuccess, onClose }) {
             k === '' ? <div key={i} /> :
             <button key={i} onClick={() => handleKey(k)}
               className="py-4 rounded-2xl text-lg font-medium transition-colors"
-              style={{ background: '#1A2740', color: k === 'del' ? '#8A9BB5' : '#ffffff' }}>
+              style={{ background: theme.input, color: k === 'del' ? theme.subtext : theme.text }}>
               {k === 'del' ? <Delete size={18} style={{ margin: '0 auto' }} /> : k}
             </button>
           ))}
@@ -64,16 +61,16 @@ function PinModal({ onSuccess, onClose }) {
           onClick={handleSubmitPin}
           disabled={pin.length !== 4}
           className="w-full py-3 rounded-2xl text-sm font-semibold mb-3 transition-opacity disabled:opacity-40"
-          style={{ background: '#C9A84C', color: '#0A1628' }}>
+          style={{ background: theme.gold, color: '#0A1628' }}>
           Enter
         </button>
-        <button onClick={onClose} className="text-sm" style={{ color: '#8A9BB5' }}>Cancel</button>
+        <button onClick={onClose} className="text-sm" style={{ color: theme.subtext }}>Cancel</button>
       </div>
     </div>
   );
 }
 
-function BottomNav({ active }) {
+function BottomNav({ active, theme }) {
   const navigate = useNavigate();
   const items = [
     { icon: Home, label: 'Home', path: '/dashboard' },
@@ -82,24 +79,22 @@ function BottomNav({ active }) {
     { icon: BarChart2, label: 'Reports', path: '/reports' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 flex items-center" style={{ background: '#111E33', borderTop: '1px solid #1A2740' }}>
+    <div className="fixed bottom-0 left-0 right-0 flex items-center" style={{ background: theme.nav, borderTop: `1px solid ${theme.navBorder}` }}>
       {items.map((item, i) => {
         const Icon = item.icon;
         const isAdd = item.label === '';
         const isActive = active === item.path;
         return (
-          <button key={i} onClick={() => navigate(item.path)}
-            className="flex-1 py-3 flex flex-col items-center gap-1">
+          <button key={i} onClick={() => navigate(item.path)} className="flex-1 py-3 flex flex-col items-center gap-1">
             {isAdd ? (
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center -mt-6 shadow-lg" style={{ background: '#C9A84C' }}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center -mt-6" style={{ background: theme.gold }}>
                 <Plus size={24} color="#0A1628" />
               </div>
             ) : (
               <>
-                <Icon size={20} color={isActive ? '#C9A84C' : '#4A5A70'} />
-                <span className="text-xs" style={{ color: isActive ? '#C9A84C' : '#4A5A70' }}>{item.label}</span>
+                <Icon size={20} color={isActive ? theme.gold : theme.muted} />
+                <span className="text-xs" style={{ color: isActive ? theme.gold : theme.muted }}>{item.label}</span>
               </>
             )}
           </button>
@@ -112,6 +107,7 @@ function BottomNav({ active }) {
 export default function Dashboard() {
   const { user, balanceVisible, revealBalance, hideBalance } = useAuth();
   const { transactions, totalIncome, totalExpenses, balance } = useData();
+  const { theme } = useTheme();
   const [showPin, setShowPin] = useState(false);
 
   useEffect(() => {
@@ -131,45 +127,46 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#0A1628' }}>
+    <div className="min-h-screen pb-24" style={{ background: theme.bg }}>
       {showPin && (
         <PinModal
           onSuccess={() => { revealBalance(); setShowPin(false); }}
           onClose={() => setShowPin(false)}
+          theme={theme}
         />
       )}
 
-      <div className="px-4 pt-12 pb-6" style={{ background: '#0A1628' }}>
+      <div className="px-4 pt-12 pb-6" style={{ background: theme.bg }}>
         <div className="flex justify-between items-start mb-8">
           <div>
-            <p className="text-sm mb-1" style={{ color: '#8A9BB5' }}>{greeting()}</p>
-            <h1 className="text-xl font-bold text-white">{user?.name}</h1>
+            <p className="text-sm mb-1" style={{ color: theme.subtext }}>{greeting()}</p>
+            <h1 className="text-xl font-bold" style={{ color: theme.text }}>{user?.name}</h1>
           </div>
           <button
             onClick={() => balanceVisible ? hideBalance() : setShowPin(true)}
             className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium"
-            style={{ background: '#111E33', color: '#C9A84C', border: '1px solid #1A2740' }}>
+            style={{ background: theme.card, color: theme.gold, border: `1px solid ${theme.border}` }}>
             {balanceVisible ? <><EyeOff size={14} /> Hide</> : <><Eye size={14} /> Reveal</>}
           </button>
         </div>
 
-        <div className="rounded-2xl p-5 mb-4" style={{ background: '#111E33', border: '1px solid #1A2740' }}>
-          <p className="text-xs mb-1" style={{ color: '#8A9BB5' }}>Total Balance</p>
-          <p className="text-3xl font-bold text-white mb-4">{val(balance)}</p>
+        <div className="rounded-2xl p-5 mb-4" style={{ background: theme.card, border: `1px solid ${theme.border}` }}>
+          <p className="text-xs mb-1" style={{ color: theme.subtext }}>Total Balance</p>
+          <p className="text-3xl font-bold mb-4" style={{ color: theme.text }}>{val(balance)}</p>
           <div className="flex gap-4">
-            <div className="flex-1 rounded-xl p-3" style={{ background: '#0A1E0A' }}>
+            <div className="flex-1 rounded-xl p-3" style={{ background: theme.incomeBg }}>
               <div className="flex items-center gap-2 mb-1">
-                <TrendingUp size={14} color="#4CAF50" />
-                <span className="text-xs" style={{ color: '#4CAF50' }}>Income</span>
+                <TrendingUp size={14} color={theme.income} />
+                <span className="text-xs" style={{ color: theme.income }}>Income</span>
               </div>
-              <p className="text-sm font-semibold text-white">{val(totalIncome)}</p>
+              <p className="text-sm font-semibold" style={{ color: theme.text }}>{val(totalIncome)}</p>
             </div>
-            <div className="flex-1 rounded-xl p-3" style={{ background: '#1E0A0A' }}>
+            <div className="flex-1 rounded-xl p-3" style={{ background: theme.expenseBg }}>
               <div className="flex items-center gap-2 mb-1">
-                <TrendingDown size={14} color="#E57373" />
-                <span className="text-xs" style={{ color: '#E57373' }}>Expenses</span>
+                <TrendingDown size={14} color={theme.expense} />
+                <span className="text-xs" style={{ color: theme.expense }}>Expenses</span>
               </div>
-              <p className="text-sm font-semibold text-white">{val(totalExpenses)}</p>
+              <p className="text-sm font-semibold" style={{ color: theme.text }}>{val(totalExpenses)}</p>
             </div>
           </div>
         </div>
@@ -177,28 +174,28 @@ export default function Dashboard() {
 
       <div className="px-4">
         <div className="flex justify-between items-center mb-3">
-          <h2 className="font-semibold text-white">Recent transactions</h2>
-          <button onClick={() => window.location.href = '/transactions'} className="text-xs font-medium" style={{ color: '#C9A84C' }}>See all</button>
+          <h2 className="font-semibold" style={{ color: theme.text }}>Recent transactions</h2>
+          <button onClick={() => window.location.href = '/transactions'} className="text-xs font-medium" style={{ color: theme.gold }}>See all</button>
         </div>
 
         <div className="space-y-3">
           {recent.length === 0 && (
-            <div className="text-center py-12 text-sm" style={{ color: '#4A5A70' }}>
+            <div className="text-center py-12 text-sm" style={{ color: theme.muted }}>
               No transactions yet — tap + to add one
             </div>
           )}
           {recent.map(tx => (
-            <div key={tx.id} className="flex items-center gap-3 p-4 rounded-2xl" style={{ background: '#111E33', border: '1px solid #1A2740' }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: tx.type === 'income' ? '#0A1E0A' : '#1E0A0A' }}>
+            <div key={tx.id} className="flex items-center gap-3 p-4 rounded-2xl" style={{ background: theme.card, border: `1px solid ${theme.border}` }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: tx.type === 'income' ? theme.incomeBg : theme.expenseBg }}>
                 {tx.type === 'income'
-                  ? <TrendingUp size={18} color="#4CAF50" />
-                  : <TrendingDown size={18} color="#E57373" />}
+                  ? <TrendingUp size={18} color={theme.income} />
+                  : <TrendingDown size={18} color={theme.expense} />}
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">{tx.description || tx.category}</p>
-                <p className="text-xs" style={{ color: '#4A5A70' }}>{tx.category} · {formatDate(tx.date)}</p>
+                <p className="text-sm font-medium" style={{ color: theme.text }}>{tx.description || tx.category}</p>
+                <p className="text-xs" style={{ color: theme.muted }}>{tx.category} · {formatDate(tx.date)}</p>
               </div>
-              <p className="text-sm font-semibold" style={{ color: tx.type === 'income' ? '#4CAF50' : '#E57373' }}>
+              <p className="text-sm font-semibold" style={{ color: tx.type === 'income' ? theme.income : theme.expense }}>
                 {tx.type === 'income' ? '+' : '-'}{val(tx.amount)}
               </p>
             </div>
@@ -206,7 +203,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <BottomNav active="/dashboard" />
+      <BottomNav active="/dashboard" theme={theme} />
     </div>
   );
 }
