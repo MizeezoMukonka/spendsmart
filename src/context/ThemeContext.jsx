@@ -15,7 +15,7 @@
         localStorage.setItem('ss_theme', next ? 'dark' : 'light');
     };
 
-    const theme = {
+    const theme = {  
         isDark,
         bg: isDark ? '#0A1628' : '#F4F6FA',
         card: isDark ? '#111E33' : '#FFFFFF',
@@ -40,4 +40,4 @@
     );
     }
 
-    export const useTheme = () => useContext(ThemeContext);
+    export const useTheme = () => useContext(ThemeContext);  
