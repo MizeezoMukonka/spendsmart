@@ -35,11 +35,11 @@ router.post('/register', [
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const hashedPin = await bcrypt.hash(pin, 10);
-
-    const result = await pool.query(
-      'INSERT INTO users (name, email, phone, password, pin) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, phone',
-      [name, email || null, phone || null, hashedPassword, hashedPin]
-    );
+    const { currency = 'ZMW' } = req.body;
+const result = await pool.query(
+  'INSERT INTO users (name, email, phone, password, pin, currency) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, phone, currency',
+  [name, email || null, phone || null, hashedPassword, hashedPin, currency]
+);
 
     const user = result.rows[0];
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -74,7 +74,7 @@ router.post('/login', [
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email, phone: user.phone } });
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email, phone: user.phone, currency: user.currency } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

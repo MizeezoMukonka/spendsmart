@@ -18,13 +18,13 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const register = async (name, email, phone, password, pin) => {
-    const data = await apiRequest('/auth/register', 'POST', { name, email, phone, password, pin });
-    setUser(data.user);
-    localStorage.setItem('ss_user', JSON.stringify(data.user));
-    localStorage.setItem('ss_token', data.token);
-    return data;
-  };
+const register = async (name, email, phone, password, pin, currency = 'ZMW') => {
+  const data = await apiRequest('/auth/register', 'POST', { name, email, phone, password, pin, currency });
+  setUser(data.user);
+  localStorage.setItem('ss_user', JSON.stringify(data.user));
+  localStorage.setItem('ss_token', data.token);
+  return data;
+};
 
   const verifyPin = async (pin) => {
     const data = await apiRequest('/auth/verify-pin', 'POST', { userId: user.id, pin });

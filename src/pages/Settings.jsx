@@ -137,7 +137,7 @@ export default function Settings() {
             </div>
             <div className="flex-1">
               <p className="text-xs" style={{ color: theme.subtext }}>Currency</p>
-              <p className="text-sm font-medium" style={{ color: theme.text }}>Zambian Kwacha (ZMW)</p>
+             <p className="text-sm font-medium" style={{ color: theme.text }}>{user?.currency || 'ZMW'}</p>
             </div>
           </div>
 

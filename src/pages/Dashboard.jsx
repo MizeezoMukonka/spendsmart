@@ -117,7 +117,8 @@ export default function Dashboard() {
   }, []);
 
   const recent = transactions.slice(0, 5);
-  const val = (amount) => balanceVisible ? formatCurrency(amount) : '••••••';
+  const { currency } = useData();
+const val = (amount) => balanceVisible ? formatCurrency(amount, currency) : '••••••';
 
   const greeting = () => {
     const hour = new Date().getHours();

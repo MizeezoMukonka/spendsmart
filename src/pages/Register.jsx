@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { CURRENCIES } from '../utils/formatCurrency';
 import { Mail, Lock, User, Shield, TrendingUp, Phone } from 'lucide-react';
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [method, setMethod] = useState('email');
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', pin: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', pin: '', currency: 'ZMW' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +42,8 @@ if (form.name.trim().split(' ').length < 2) { setError('Please enter both your f
         method === 'email' ? form.email : null,
         method === 'phone' ? form.phone : null,
         form.password,
-        form.pin
+        form.pin,
+        form.currency
       );
       navigate('/dashboard');
     } catch (err) {
@@ -143,6 +145,24 @@ if (form.name.trim().split(' ').length < 2) { setError('Please enter both your f
                 />
               </div>
             </div>
+
+            <div>
+  <label className="block text-xs font-medium mb-1" style={{ color: '#8A9BB5' }}>Currency</label>
+  <div className="rounded-xl px-4 py-3" style={{ background: '#1A2740' }}>
+    <select
+      value={form.currency}
+      onChange={e => setForm({ ...form, currency: e.target.value })}
+      className="w-full bg-transparent text-sm focus:outline-none"
+      style={{ color: '#ffffff' }}>
+      {CURRENCIES.map(c => (
+        <option key={c.code} value={c.code} style={{ background: '#1A2740', color: '#ffffff' }}>
+          {c.symbol} — {c.name} ({c.code})
+        </option>
+      ))}
+    </select>
+  </div>
+  <p className="text-xs mt-1" style={{ color: '#4A5A70' }}>Zambian Kwacha selected by default</p>
+</div>
 
             <div>
               <label className="block text-xs font-medium mb-1" style={{ color: '#8A9BB5' }}>4-digit PIN (to reveal balances)</label>

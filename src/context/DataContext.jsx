@@ -24,6 +24,7 @@ export function DataProvider({ children }) {
   const [transactions, setTransactions] = useState([]);
   const [categories] = useState(DEFAULT_CATEGORIES);
   const [loading, setLoading] = useState(false);
+ const currency = user?.currency || 'ZMW';
 
   useEffect(() => {
     if (user) fetchTransactions();
@@ -65,7 +66,7 @@ export function DataProvider({ children }) {
   const balance       = totalIncome - totalExpenses;
 
   return (
-    <DataContext.Provider value={{ transactions, categories, addTransaction, deleteTransaction, totalIncome, totalExpenses, balance, loading, fetchTransactions }}>
+    <DataContext.Provider value={{ transactions, categories, addTransaction, deleteTransaction, totalIncome, totalExpenses, balance, loading, fetchTransactions, currency   }}>
       {children}
     </DataContext.Provider>
   );
