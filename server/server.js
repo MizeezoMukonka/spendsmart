@@ -44,6 +44,7 @@ app.use(express.json({ limit: '10kb' }));
 // Routes
 app.use('/api/auth', authLimiter, require('./routes/auth'));
 app.use('/api/transactions', require('./routes/transactions'));
+app.use('/api/receipt', require('./routes/receipt'));
 
 // Handle routes that don't exist
 app.use((req, res) => {
