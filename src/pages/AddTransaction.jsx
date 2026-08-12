@@ -220,7 +220,7 @@
                 type="text"
                 value={form.description}
                 onChange={e => setForm({ ...form, description: e.target.value })}
-                placeholder="e.g. Shoprite groceries"
+                placeholder="e.g. ShopRite groceries"
                 className="w-full bg-transparent text-sm focus:outline-none"
                 style={{ color: theme.text, caretColor: theme.gold }}
             />
